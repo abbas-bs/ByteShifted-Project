@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "956327693582",
+    "project_id": "byteshifted-project",
+    "storage_bucket": "byteshifted-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956327693582:android:3e270c3dc00d557da45b5f",
+        "android_client_info": {
+          "package_name": "com.example.byteshiftedproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXKOU4QBNVh5uO7YvuNaApj9DtY1a0BlY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
