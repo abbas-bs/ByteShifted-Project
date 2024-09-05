@@ -42,7 +42,18 @@ fun LoginPage(modifier: Modifier = Modifier, navController: NavController, authV
 
     LaunchedEffect(authState.value) {
         when(authState.value){
-            is AuthState.Authenticated -> navController.navigate(Routes.home)
+            is AuthState.Authenticated -> navController.navigate(Routes.home){
+                popUpTo(Routes.login) { inclusive = true }      //Caught and fixed bug i.e
+
+                /*After this navigation command is executed, the user will be taken to the new destination
+                (Routes.home in this context), and all the previous destinations in the back stack,
+                including Routes.login, will be removed.
+                As a result, pressing the back button won't take the user back to the
+                login screen because it has been removed from the stack.
+                 */
+
+            }
+
             is AuthState.Error -> Toast.makeText(
                 context,
                 (authState.value as AuthState.Error).message,
