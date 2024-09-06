@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.byteshiftedproject.pages.HomePage
 import com.example.byteshiftedproject.pages.LoginPage
+import com.example.byteshiftedproject.pages.ProfilePage
 import com.example.byteshiftedproject.pages.SignupPage
 
 @Composable
@@ -24,6 +25,9 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
             HomePage(modifier, navController, authViewModel)
 
             navController.popBackStack(Routes.login, inclusive = true)
+        }
+        composable(Routes.profile){
+            ProfilePage(modifier, navController, authViewModel)
         }
     })
 }

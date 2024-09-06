@@ -51,6 +51,12 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
         Text(text = "Email: $userEmail", fontSize = 16.sp)
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = {
+            navController.navigate(Routes.profile)
+        }) {
+            Text(text = "Click Here to View Profile", fontSize = 24.sp)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        TextButton(onClick = {
             authViewModel.signout()
             navController.navigate(Routes.login) {
                 popUpTo(Routes.home) { inclusive = true }
@@ -58,5 +64,6 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
         }) {
             Text(text = "Sign Out", fontSize = 28.sp)
         }
+
     }
 }
