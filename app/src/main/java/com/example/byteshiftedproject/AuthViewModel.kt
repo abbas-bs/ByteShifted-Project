@@ -251,6 +251,34 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun deleteUserAccount() {
+        val user = auth.currentUser
+        if (user != null) {
+            // First, delete the user data from Realtime Database
+            db.child("users").child(user.uid).removeValue()
+                .addOnSuccessListener {
+                    // After user data is removed, delete the user account from Firebase Authentication
+                    user.delete()
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // Account deleted successfully
+                                _authState.value = AuthState.Unaunthenticated
+                                _userName.value = "Unknown User"
+                                _userEmail.value = "No Email"
+                            } else {
+                                // Failed to delete user account
+                                _authState.value = AuthState.Error(task.exception?.message ?: "Failed to delete account")
+                            }
+                        }
+                }
+                .addOnFailureListener { e ->
+                    // Error removing user data from Realtime Database
+                    _authState.value = AuthState.Error(e.message ?: "Failed to delete user data")
+                }
+        }
+    }
+
+
 
     fun signout() {
         auth.signOut()

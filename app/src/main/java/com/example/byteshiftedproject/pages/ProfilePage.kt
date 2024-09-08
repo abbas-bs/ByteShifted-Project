@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.byteshiftedproject.AuthViewModel
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel){
@@ -32,6 +34,7 @@ fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, aut
     var updatedPhoneNumber by remember { mutableStateOf(phoneNumber) }
     var updatedUserAddress by remember { mutableStateOf(userAddress) }
 
+    var showDialog by remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -69,6 +72,35 @@ fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, aut
             authViewModel.updateUserProfileDetails(updatedPhoneNumber, updatedUserAddress)
         }) {
             Text(text = "Save Changes")
+        }
+
+        Button(onClick = {
+            showDialog = true // Show confirmation dialog
+        }) {
+            Text(text = "Delete Account")
+        }
+
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text(text = "Delete Account") },
+                text = { Text(text = "Are you sure you want to delete your account? This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        authViewModel.deleteUserAccount() // Proceed with deletion
+                        showDialog = false // Dismiss the dialog
+                    }) {
+                        Text(text = "Confirm")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showDialog = false // Dismiss the dialog
+                    }) {
+                        Text(text = "Cancel")
+                    }
+                }
+            )
         }
     }
 
