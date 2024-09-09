@@ -9,7 +9,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -21,21 +20,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.byteshiftedproject.AuthViewModel
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
 
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel){
     val userName by authViewModel.userName.observeAsState("Unknown User")
     val userEmail by authViewModel.userEmail.observeAsState("No Email")
-    val phoneNumber by authViewModel.phoneNumber.observeAsState("")
-    val userAddress by authViewModel.userAddress.observeAsState("")
 
-    var updatedPhoneNumber by remember { mutableStateOf(phoneNumber) }
-    var updatedUserAddress by remember { mutableStateOf(userAddress) }
-
-    var showDialog by remember { mutableStateOf(false) }
-
+    var phoneNumber by remember { mutableStateOf("") }
+    var userAddress by remember { mutableStateOf("") }
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,61 +38,28 @@ fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, aut
         OutlinedTextField(value = userName, onValueChange = {},
             label = {
                 Text(text = "User Name")
-            },
-            readOnly = true
-            )
+            })
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(value = userEmail, onValueChange = {},
             label = {
                 Text(text = "Email")
-            },
-            readOnly = true
-            )
+            })
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(value = updatedPhoneNumber, onValueChange = {updatedPhoneNumber = it},
+        OutlinedTextField(value = phoneNumber, onValueChange = {phoneNumber = it},
             label = {
                 Text(text = "Phone Number")
             })
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(value = updatedUserAddress, onValueChange = {updatedUserAddress = it},
+        OutlinedTextField(value = userAddress, onValueChange = {userAddress = it},
             label = {
                 Text(text = "Address")
             })
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Button(onClick = {
-            authViewModel.updateUserProfileDetails(updatedPhoneNumber, updatedUserAddress)
+            authViewModel.updateUserProfileDetails(phoneNumber, userAddress)
         }) {
             Text(text = "Save Changes")
-        }
-
-        Button(onClick = {
-            showDialog = true // Show confirmation dialog
-        }) {
-            Text(text = "Delete Account")
-        }
-
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text(text = "Delete Account") },
-                text = { Text(text = "Are you sure you want to delete your account? This action cannot be undone.") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        authViewModel.deleteUserAccount() // Proceed with deletion
-                        showDialog = false // Dismiss the dialog
-                    }) {
-                        Text(text = "Confirm")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
-                        showDialog = false // Dismiss the dialog
-                    }) {
-                        Text(text = "Cancel")
-                    }
-                }
-            )
         }
     }
 

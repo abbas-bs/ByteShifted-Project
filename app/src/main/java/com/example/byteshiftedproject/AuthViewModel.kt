@@ -8,18 +8,12 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    //For using FireStore
-    //val db= Firebase.firestore
-
-    //For using Realtime Database
-    private val db: DatabaseReference = FirebaseDatabase.getInstance().reference
+    val db= Firebase.firestore
 
 
     private val _authState = MutableLiveData<AuthState>()
@@ -30,12 +24,6 @@ class AuthViewModel : ViewModel() {
 
     private val _userEmail = MutableLiveData<String>()
     val userEmail: LiveData<String> = _userEmail
-
-    private val _phoneNumber = MutableLiveData<String>()
-    val phoneNumber: LiveData<String> = _phoneNumber
-
-    private val _userAddress = MutableLiveData<String>()
-    val userAddress: LiveData<String> = _userAddress
 
     // Validation functions
     fun isValidName(name: String): Boolean {
@@ -66,46 +54,20 @@ class AuthViewModel : ViewModel() {
 
     fun fetchUserDetails() {
         val user = auth.currentUser
-
-        //For FireStore
-
-//        if (user != null) {
-//            db.collection("users").document(user.uid)
-//                .get()
-//                .addOnSuccessListener { document ->
-//                    if (document != null && document.exists()) {
-//                        val firstName = document.getString("firstName") ?: "Unknown"
-//                        val lastName = document.getString("lastName") ?: "User"
-//                        _userName.value = "$firstName $lastName"
-//                        _userEmail.value = document.getString("email") ?: "No Email"
-//                        _phoneNumber.value = document.getString("phone_number") ?: ""
-//                        _userAddress.value = document.getString("address") ?: ""
-//
-//                    } else {
-//                        _userName.value = "Unknown User"
-//                        _userEmail.value = "No Email"
-//                        _phoneNumber.value = ""
-//                        _userAddress.value = ""
-//                    }
-//                }
-//                .addOnFailureListener { exception ->
-//                    _userName.value = "Unknown User"
-//                    _userEmail.value = "No Email"
-//                    _phoneNumber.value = ""
-//                    _userAddress.value = ""
-//                }
-//        }
-
-        //For Realtime Database
-
         if (user != null) {
-            db.child("users").child(user.uid)
+            db.collection("users").document(user.uid)
                 .get()
-                .addOnSuccessListener { dataSnapshot ->
-                    val firstName = dataSnapshot.child("firstName").getValue(String::class.java) ?: "Unknown"
-                    val lastName = dataSnapshot.child("lastName").getValue(String::class.java) ?: "User"
-                    _userName.value = "$firstName $lastName"
-                    _userEmail.value = dataSnapshot.child("email").getValue(String::class.java) ?: "No Email"
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        val firstName = document.getString("firstName") ?: "Unknown"
+                        val lastName = document.getString("lastName") ?: "User"
+                        _userName.value = "$firstName $lastName"
+                        _userEmail.value = document.getString("email") ?: "No Email"
+
+                    } else {
+                        _userName.value = "Unknown User"
+                        _userEmail.value = "No Email"
+                    }
                 }
                 .addOnFailureListener { exception ->
                     _userName.value = "Unknown User"
@@ -162,11 +124,7 @@ class AuthViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     // Save user data to Firestore after profile update
-                    //saveUserDataToFirestore(user, firstName, lastName)
-
-                    //Save user data to Realtime Database
-                    saveUserDataToRealtimeDB(user, firstName, lastName)
-
+                    saveUserDataToFirestore(user, firstName, lastName)
                     fetchUserDetails()
                     _authState.value = AuthState.Authenticated
                 } else {
@@ -175,109 +133,43 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    //For FireStore
-
-//    private fun saveUserDataToFirestore(user: FirebaseUser, firstName: String, lastName: String) {
-//        val userData = hashMapOf(
-//            "firstName" to firstName,
-//            "lastName" to lastName,
-//            "email" to user.email,
-//            "phone_number" to "", // Initialized as empty
-//            "address" to "" // Initialized as empty
-//        )
-//
-//        db.collection("users").document(user.uid) // Use user.uid as document ID
-//            .set(userData)
-//            .addOnSuccessListener {
-//                Log.d("AuthViewModel", "User data saved to Firestore")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.w("AuthViewModel", "Error saving user data to Firestore", e)
-//            }
-//    }
-
-    // Save user data to Realtime Database
-    private fun saveUserDataToRealtimeDB(user: FirebaseUser, firstName: String, lastName: String) {
-        val userData = mapOf(
+    private fun saveUserDataToFirestore(user: FirebaseUser, firstName: String, lastName: String) {
+        val userData = hashMapOf(
             "firstName" to firstName,
             "lastName" to lastName,
             "email" to user.email,
-            "phone_number" to "",
-            "address" to ""
+            "phone_number" to "", // Initialized as empty
+            "address" to "" // Initialized as empty
         )
 
-        db.child("users").child(user.uid).setValue(userData)
+        db.collection("users").document(user.uid) // Use user.uid as document ID
+            .set(userData)
             .addOnSuccessListener {
-                // Data saved successfully
+                Log.d("AuthViewModel", "User data saved to Firestore")
             }
             .addOnFailureListener { e ->
-                // Error saving data
+                Log.w("AuthViewModel", "Error saving user data to Firestore", e)
             }
     }
 
     fun updateUserProfileDetails(phone: String, address: String) {
         val user = auth.currentUser
-//        if (user != null) {
-//            val userData = hashMapOf(
-//                "phone_number" to phone,
-//                "address" to address
-//            )as Map<String, Any>
-//
-//            db.collection("users").document(user.uid)
-//                .update(userData)
-//                .addOnSuccessListener {
-//                    _phoneNumber.value = phone
-//                    _userAddress.value = address
-//                    //Here I want to show user that Changes has been saved
-//                }
-//                .addOnFailureListener { e ->
-//                    Log.w("AuthViewModel", "Error updating user profile", e)
-//                }
-//        }
-
         if (user != null) {
-            val updates = mapOf(
+            val userData = hashMapOf(
                 "phone_number" to phone,
                 "address" to address
-            )
+            )as Map<String, Any>
 
-            db.child("users").child(user.uid).updateChildren(updates)
+            db.collection("users").document(user.uid)
+                .update(userData)
                 .addOnSuccessListener {
-                    // Show user that changes have been saved
+                    //Here I want to show user that Changes has been saved
                 }
                 .addOnFailureListener { e ->
-                    // Error updating profile
+                    Log.w("AuthViewModel", "Error updating user profile", e)
                 }
         }
     }
-
-    fun deleteUserAccount() {
-        val user = auth.currentUser
-        if (user != null) {
-            // First, delete the user data from Realtime Database
-            db.child("users").child(user.uid).removeValue()
-                .addOnSuccessListener {
-                    // After user data is removed, delete the user account from Firebase Authentication
-                    user.delete()
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                // Account deleted successfully
-                                _authState.value = AuthState.Unaunthenticated
-                                _userName.value = "Unknown User"
-                                _userEmail.value = "No Email"
-                            } else {
-                                // Failed to delete user account
-                                _authState.value = AuthState.Error(task.exception?.message ?: "Failed to delete account")
-                            }
-                        }
-                }
-                .addOnFailureListener { e ->
-                    // Error removing user data from Realtime Database
-                    _authState.value = AuthState.Error(e.message ?: "Failed to delete user data")
-                }
-        }
-    }
-
 
 
     fun signout() {
